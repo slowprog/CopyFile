@@ -15,7 +15,7 @@
     },
     "require-dev": {
         "composer/composer": "1.0.*@dev",
-        "symfony/filesystem": "~2.7"
+        "symfony/filesystem": "~2.7",
         "symfony/finder": "~2.7"
     },
     "autoload": {
