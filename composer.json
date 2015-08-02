@@ -1,0 +1,24 @@
+{
+    "name": "slowprog/composer-copy-file",
+    "description": "Composer script copying your files after install",
+    "keywords": ["copy file"],
+    "homepage": "https://github.com/SlowProg/composer-copy-file",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andrey Tyshev",
+            "email": "slowprog@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3"
+    },
+    "require-dev": {
+        "composer/composer": "1.0.*@dev",
+        "symfony/filesystem": "~2.7"
+        "symfony/finder": "~2.7"
+    },
+    "autoload": {
+        "psr-4": { "SlowProg\\CopyFile\\": "" }
+    }
+}
