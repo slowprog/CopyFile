@@ -16,47 +16,52 @@ class ScriptHandler
     {
 	    $extras = $event->getComposer()->getPackage()->getExtra();
 
-        if (!isset($extras['copy-fonts'])) {
-            throw new \InvalidArgumentException('The dirs of fonts needs to be configured through the extra.copy-fonts setting.');
+        if (!isset($extras['copy-file'])) {
+            throw new \InvalidArgumentException('The dirs or files needs to be configured through the extra.copy-file setting.');
         }
 		
-        $fonts = $extras['copy-fonts'];
+        $files = $extras['copy-file'];
         
-		if ($fonts === array_values($fonts)) {
-            throw new \InvalidArgumentException('The extra.copy-fonts must be associative array like "<dir_from>: <dir_to>".');
+		if ($files === array_values($files)) {
+            throw new \InvalidArgumentException('The extra.copy-file must be hash like "{<dir_or_file_from>: <dir_to>}".');
         }
         
         $finder = new Finder;
         $fs = new Filesystem;
         $io = $event->getIO();
         
-        foreach ($fonts as $from => $to) {
+        foreach ($files as $from => $to) {
+	        if (!is_dir($to)) 
+		        throw new \InvalidArgumentException('Destination directory is not a directory.');
+	        
 	        try {
 	            $fs->mkdir($to);
 	        } catch (IOException $e) {
-	            $io->write(sprintf('<error>Could not create directory %s.</error>', $to));
-	            return;
+	            throw new \InvalidArgumentException(sprintf('<error>Could not create directory %s.</error>', $to));
 	        }
 	        
-	        if (false === file_exists($from)) {
-	            $io->write(sprintf(
-	                '<error>Fonts directory "%s" does not exist. Did you install twbs/bootstrap?</error>',
-	                $from
-	            ));
-	            return;
-	        }
+	        if (false === file_exists($from))
+	            throw new \InvalidArgumentException(sprintf('<error>Source directory or file "%s" does not exist.</error>', $from));
 	        
-	        $finder->files()->in($from);
-	        foreach ($finder as $file) {
-	            $dest = sprintf('%s/%s', $to, $file->getBaseName());
+	        if (is_dir($from)) {
+		        $finder->files()->in($from);
+		        foreach ($finder as $file) {
+		            $dest = sprintf('%s/%s', $to, $file->getBaseName());
+		            try {
+		                $fs->copy($file, $dest);
+		            } catch (IOException $e) {
+		                throw new \InvalidArgumentException(sprintf('<error>Could not copy %s</error>', $file->getBaseName()));
+		            }
+		        }  
+	        } else {
 	            try {
-	                $fs->copy($file, $dest);
+	                $fs->copy($from, $to.'/'.basename($from));
 	            } catch (IOException $e) {
-	                $io->write(sprintf('<error>Could not copy %s</error>', $file->getBaseName()));
-	                return;
+	                throw new \InvalidArgumentException(sprintf('<error>Could not copy %s</error>', $from));
 	            }
 	        }
-	        $io->write(sprintf('Copied fonts from <comment>%s</comment> to <comment>%s</comment>.', $from, $to));
+	        
+	        $io->write(sprintf('Copied file(s) from <comment>%s</comment> to <comment>%s</comment>.', $from, $to));    
         }
     }
 }
