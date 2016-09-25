@@ -8,7 +8,7 @@ For example copy fonts:
 {
     "require":{
         "twbs/bootstrap": "~3.3",
-        "slowprog/composer-copy-file": "~0.1.0"
+        "slowprog/composer-copy-file": "~0.1"
     },
     "scripts": {
         "post-install-cmd": [
