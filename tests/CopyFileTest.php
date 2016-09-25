@@ -28,7 +28,7 @@ class CopyFileTest extends PHPUnit_Framework_TestCase
     public function testCopyDirToDir()
     {
         $root = $this->getFilesystem();
-        
+
         $this->assertFalse($root->hasChild('to/file1'));
         $this->assertFalse($root->hasChild('to/file2'));
 
@@ -122,7 +122,7 @@ class CopyFileTest extends PHPUnit_Framework_TestCase
      */
     private function getEventMock($copyFileConfig)
     {
-        $event = $this->getMockBuilder('Composer\Script\CommandEvent')
+        $event = $this->getMockBuilder('Composer\Script\Event')
             ->disableOriginalConstructor()
             ->getMock();
 

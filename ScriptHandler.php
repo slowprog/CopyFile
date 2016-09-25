@@ -5,14 +5,14 @@ namespace SlowProg\CopyFile;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOException;
-use Composer\Script\CommandEvent;
+use Composer\Script\Event;
 
 class ScriptHandler
 {
     /**
-     * @param Composer\Script\CommandEvent $event
+     * @param Event $event
      */
-    public static function copy(CommandEvent $event)
+    public static function copy(Event $event)
     {
         $extras = $event->getComposer()->getPackage()->getExtra();
 
@@ -50,7 +50,7 @@ class ScriptHandler
 
                 foreach ($finder as $file) {
                     $dest = sprintf('%s/%s', $to, $file->getRelativePathname());
-                    
+
                     try {
                         $fs->copy($file, $dest);
                     } catch (IOException $e) {
