@@ -26,7 +26,6 @@ class ScriptHandler
             throw new \InvalidArgumentException('The extra.copy-file must be hash like "{<dir_or_file_from>: <dir_to>}".');
         }
 
-        $finder = new Finder;
         $fs = new Filesystem;
         $io = $event->getIO();
 
@@ -46,6 +45,7 @@ class ScriptHandler
             }
 
             if (is_dir($from)) {
+                $finder = new Finder;
                 $finder->files()->in($from);
 
                 foreach ($finder as $file) {
