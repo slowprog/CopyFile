@@ -40,7 +40,7 @@ class CopyFileTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($root->hasChild('to/file2'));
     }
 
-    public function testCopyToNotExistsDir()
+    public function testCopyDirToNotExistsDir()
     {
         $root = $this->getFilesystem();
 
@@ -84,10 +84,23 @@ class CopyFileTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($root->hasChild('to/file3'));
 
         ScriptHandler::copy($this->getEventMock([
-            vfsStream::url('root/file3')=> vfsStream::url('root/to')
+            vfsStream::url('root/file3')=> vfsStream::url('root/to/')
         ]));
 
         $this->assertTrue($root->hasChild('to/file3'));
+    }
+
+    public function testCopyFileToFile()
+    {
+        $root = $this->getFilesystem();
+
+        $this->assertFalse($root->hasChild('to/file_new'));
+
+        ScriptHandler::copy($this->getEventMock([
+            vfsStream::url('root/file3')=> vfsStream::url('root/to/file_new')
+        ]));
+
+        $this->assertTrue($root->hasChild('to/file_new'));
     }
 
     public function testCopyFromComplexDir()

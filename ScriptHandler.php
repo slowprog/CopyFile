@@ -30,12 +30,19 @@ class ScriptHandler
         $io = $event->getIO();
 
         foreach ($files as $from => $to) {
-            if (file_exists($to) && !is_dir($to)) {
+            // Check the renaming of file for direct moving (file-to-file)
+            $isRenameFile = substr($to, -1) != '/' && !is_dir($from);
+
+            if (file_exists($to) && !is_dir($to) && !$isRenameFile) {
                 throw new \InvalidArgumentException('Destination directory is not a directory.');
             }
 
             try {
-                $fs->mkdir($to);
+                if ($isRenameFile) {
+                    $fs->mkdir(dirname($to));
+                } else {
+                    $fs->mkdir($to);
+                }
             } catch (IOException $e) {
                 throw new \InvalidArgumentException(sprintf('<error>Could not create directory %s.</error>', $to));
             }
@@ -59,7 +66,11 @@ class ScriptHandler
                 }
             } else {
                 try {
-                    $fs->copy($from, $to.'/'.basename($from));
+                    if ($isRenameFile) {
+                        $fs->copy($from, $to);
+                    } else {
+                        $fs->copy($from, $to.'/'.basename($from));
+                    }
                 } catch (IOException $e) {
                     throw new \InvalidArgumentException(sprintf('<error>Could not copy %s</error>', $from));
                 }
