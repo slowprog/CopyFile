@@ -53,7 +53,7 @@ class ScriptHandler
 
             if (is_dir($from)) {
                 $finder = new Finder;
-                $finder->files()->in($from);
+                $finder->files()->ignoreDotFiles(false)->in($from);
 
                 foreach ($finder as $file) {
                     $dest = sprintf('%s/%s', $to, $file->getRelativePathname());

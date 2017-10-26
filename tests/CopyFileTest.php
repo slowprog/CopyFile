@@ -109,6 +109,7 @@ class CopyFileTest extends PHPUnit_Framework_TestCase
 
         $this->assertFalse($root->hasChild('to/file4'));
         $this->assertFalse($root->hasChild('to/sub_dir/file5'));
+        $this->assertFalse($root->hasChild('to/git_keep_dir'));
 
         ScriptHandler::copy($this->getEventMock([
             vfsStream::url('root/from_complex')=> vfsStream::url('root/to')
@@ -116,6 +117,7 @@ class CopyFileTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($root->hasChild('to/file4'));
         $this->assertTrue($root->hasChild('to/sub_dir/file5'));
+        $this->assertTrue($root->hasChild('to/git_keep_dir'));
     }
 
     public function testConfigError()
@@ -208,7 +210,10 @@ class CopyFileTest extends PHPUnit_Framework_TestCase
                 'file4' => 'Some content',
                 'sub_dir' => [
                     'file5' => 'Some content',
-                ]
+                ],
+                'git_keep_dir' => [
+                    '.gitkeep' => '',
+                ],
             ],
         ];
 
