@@ -44,7 +44,7 @@ class ScriptHandler
                     $fs->mkdir($to);
                 }
             } catch (IOException $e) {
-                throw new \InvalidArgumentException(sprintf('<error>Could not create directory %s.</error>', $to));
+                throw new \InvalidArgumentException(sprintf('<error>Could not create directory %s.</error>', $to), $e->getCode(), $e);
             }
 
             if (false === file_exists($from)) {
@@ -61,7 +61,7 @@ class ScriptHandler
                     try {
                         $fs->copy($file, $dest);
                     } catch (IOException $e) {
-                        throw new \InvalidArgumentException(sprintf('<error>Could not copy %s</error>', $file->getBaseName()));
+                        throw new \InvalidArgumentException(sprintf('<error>Could not copy %s</error>', $file->getBaseName()), $e->getCode(), $e);
                     }
                 }
             } else {
@@ -72,7 +72,7 @@ class ScriptHandler
                         $fs->copy($from, $to.'/'.basename($from));
                     }
                 } catch (IOException $e) {
-                    throw new \InvalidArgumentException(sprintf('<error>Could not copy %s</error>', $from));
+                    throw new \InvalidArgumentException(sprintf('<error>Could not copy %s</error>', $from), $e->getCode(), $e);
                 }
             }
 
