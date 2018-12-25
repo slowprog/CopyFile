@@ -26,9 +26,38 @@ For example copy fonts:
 }
 ```
 
+In a development you may use `-dev` suffix. For example copy non-minified in development and minified in production:
+
+```
+{
+    "require":{
+        "twbs/bootstrap": "~3.3",
+        "slowprog/composer-copy-file": "~0.2"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "SlowProg\\CopyFile\\ScriptHandler::copy"
+        ],
+        "post-update-cmd": [
+            "SlowProg\\CopyFile\\ScriptHandler::copy"
+        ]
+    },
+    "extra": {
+        "copy-file": {
+            "vendor/twbs/bootstrap/dist/js/bootstrap.min.js": "web/js/bootstrap.js"
+        },
+        "copy-file-dev": {
+            "vendor/twbs/bootstrap/dist/js/bootstrap.js": "web/js/bootstrap.js"
+        }
+    }
+}
+```
+
 ## Use cases
 
 You need to be careful when using a last slash. The file-destination is different from the directory-destination with the slash.
+
+If in destination directory already exists copy of file, then it will be override. To overwrite only older files append `?` in end of destination path.
 
 Source directory hierarchy:
 
@@ -103,4 +132,34 @@ dir/
         other/
             file1.txt
             file_rename.txt
+    ```
+
+4. Override only older files:
+
+    ```
+    {
+        "extra": {
+            "copy-file": {
+                "dir/subdir/": "web/other/?"
+            }
+        }
+    }
+    ```
+    
+    Preset:
+    
+    ```
+    web/
+        other/
+            file1.txt - Recently modified
+            file2.txt - Old rotten file
+    ```
+    
+    Result:
+
+    ```
+    web/
+        other/
+            file1.txt - Not changed
+            file2.txt - Replaced
     ```
