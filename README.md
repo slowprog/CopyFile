@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/lar-dragon/CopyFile.svg?branch=master)](https://travis-ci.org/lar-dragon/CopyFile)
+[![Latest Stable Version](https://poser.pugx.org/slowprog/composer-copy-file/version)](https://packagist.org/packages/slowprog/composer-copy-file)
+[![Total Downloads](https://poser.pugx.org/slowprog/composer-copy-file/downloads)](https://packagist.org/packages/slowprog/composer-copy-file)
+
 # Composer copy file
 
 Composer script copying your files after install. Supports copying of entire directories, individual files and complex nested directories.

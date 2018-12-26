@@ -1,64 +1,51 @@
 <?php
 
-use SlowProg\CopyFile\ScriptHandler;
+use \SlowProg\CopyFile\ScriptHandler;
+use \org\bovigo\vfs\vfsStream;
 
-use org\bovigo\vfs\vfsStream;
-use Composer\IO\IOInterface;
-
-class CopyFileTest extends PHPUnit_Framework_TestCase
+class CopyFileTest extends TestCase
 {
-    public function setUp()
-    {
-
-    }
+    use \phpmock\phpunit\PHPMock;
 
     public function testFilesystem()
     {
-        $root = $this->getFilesystem();
+        $this->assertTrue($this->root->hasChild('from/file1'));
+        $this->assertTrue($this->root->hasChild('from/file2'));
 
-        $this->assertTrue($root->hasChild('from/file1'));
-        $this->assertTrue($root->hasChild('from/file2'));
+        $this->assertTrue($this->root->hasChild('file3'));
 
-        $this->assertTrue($root->hasChild('file3'));
-
-        $this->assertTrue($root->hasChild('from_complex/file4'));
-        $this->assertTrue($root->hasChild('from_complex/sub_dir/file5'));
+        $this->assertTrue($this->root->hasChild('from_complex/file4'));
+        $this->assertTrue($this->root->hasChild('from_complex/sub_dir/file5'));
     }
 
     public function testCopyDirToDir()
     {
-        $root = $this->getFilesystem();
-
-        $this->assertFalse($root->hasChild('to/file1'));
-        $this->assertFalse($root->hasChild('to/file2'));
+        $this->assertFalse($this->root->hasChild('to/file1'));
+        $this->assertFalse($this->root->hasChild('to/file2'));
 
         ScriptHandler::copy($this->getEventMock([
             vfsStream::url('root/from')=> vfsStream::url('root/to')
         ]));
 
-        $this->assertTrue($root->hasChild('to/file1'));
-        $this->assertTrue($root->hasChild('to/file2'));
+        $this->assertTrue($this->root->hasChild('to/file1'));
+        $this->assertTrue($this->root->hasChild('to/file2'));
     }
 
     public function testCopyDirToNotExistsDir()
     {
-        $root = $this->getFilesystem();
-
-        $this->assertFalse($root->hasChild('not_exists'));
+        $this->assertFalse($this->root->hasChild('not_exists'));
 
         ScriptHandler::copy($this->getEventMock([
             vfsStream::url('root/from')=> vfsStream::url('root/not_exists')
         ]));
 
-        $this->assertTrue($root->hasChild('not_exists'));
-        $this->assertTrue($root->hasChild('not_exists/file1'));
-        $this->assertTrue($root->hasChild('not_exists/file2'));
+        $this->assertTrue($this->root->hasChild('not_exists'));
+        $this->assertTrue($this->root->hasChild('not_exists/file1'));
+        $this->assertTrue($this->root->hasChild('not_exists/file2'));
     }
 
     public function testCopyFromNotExistsDir()
     {
-        $root = $this->getFilesystem();
-
         $this->expectException(InvalidArgumentException::class);
 
         ScriptHandler::copy($this->getEventMock([
@@ -68,8 +55,6 @@ class CopyFileTest extends PHPUnit_Framework_TestCase
 
     public function testCopyDirToFile()
     {
-        $root = $this->getFilesystem();
-
         $this->expectException(InvalidArgumentException::class);
 
         ScriptHandler::copy($this->getEventMock([
@@ -79,144 +64,74 @@ class CopyFileTest extends PHPUnit_Framework_TestCase
 
     public function testCopyFileToDir()
     {
-        $root = $this->getFilesystem();
-
-        $this->assertFalse($root->hasChild('to/file3'));
+        $this->assertFalse($this->root->hasChild('to/file3'));
 
         ScriptHandler::copy($this->getEventMock([
             vfsStream::url('root/file3')=> vfsStream::url('root/to/')
         ]));
 
-        $this->assertTrue($root->hasChild('to/file3'));
+        $this->assertTrue($this->root->hasChild('to/file3'));
     }
 
     public function testCopyFileToFile()
     {
-        $root = $this->getFilesystem();
-
-        $this->assertFalse($root->hasChild('to/file_new'));
+        $this->assertFalse($this->root->hasChild('to/file_new'));
 
         ScriptHandler::copy($this->getEventMock([
             vfsStream::url('root/file3')=> vfsStream::url('root/to/file_new')
         ]));
 
-        $this->assertTrue($root->hasChild('to/file_new'));
+        $this->assertTrue($this->root->hasChild('to/file_new'));
     }
 
     public function testCopyFromComplexDir()
     {
-        $root = $this->getFilesystem();
-
-        $this->assertFalse($root->hasChild('to/file4'));
-        $this->assertFalse($root->hasChild('to/sub_dir/file5'));
-        $this->assertFalse($root->hasChild('to/git_keep_dir'));
+        $this->assertFalse($this->root->hasChild('to/file4'));
+        $this->assertFalse($this->root->hasChild('to/sub_dir/file5'));
+        $this->assertFalse($this->root->hasChild('to/git_keep_dir'));
 
         ScriptHandler::copy($this->getEventMock([
             vfsStream::url('root/from_complex')=> vfsStream::url('root/to')
         ]));
 
-        $this->assertTrue($root->hasChild('to/file4'));
-        $this->assertTrue($root->hasChild('to/sub_dir/file5'));
-        $this->assertTrue($root->hasChild('to/git_keep_dir'));
+        $this->assertTrue($this->root->hasChild('to/file4'));
+        $this->assertTrue($this->root->hasChild('to/sub_dir/file5'));
+        $this->assertTrue($this->root->hasChild('to/git_keep_dir'));
+    }
+
+    public function testRewriteExists()
+    {
+        $this->root->lastModified(0);
+        $this->root->getChild('dynamic_dir/file1')->lastModified(1);
+
+        $exchanged = vfsStream::url('root/dynamic_dir/file1');
+        $unaltered = vfsStream::url('root/dynamic_dir/file2');
+
+        // allow filemtime check apply for vfs protocol
+        $this->getFunctionMock('Symfony\Component\Filesystem', 'parse_url')
+            ->expects($this->any())->willReturn(null);
+
+        // preset filemtime check
+        $this->getFunctionMock('Symfony\Component\Filesystem', 'filemtime')
+            ->expects($this->any())->willReturnCallback(function ($filename) use ($unaltered) {
+                return $filename === $unaltered ? 1 : 2;
+            });
+
+        ScriptHandler::copy($this->getEventMock(array(
+            vfsStream::url('root/from') => vfsStream::url('root/dynamic_dir') . '?'
+        )));
+
+        $this->assertFileNotEquals(vfsStream::url('root/from/file1'), $exchanged);
+        $this->assertFileEquals(vfsStream::url('root/from/file2'), $unaltered);
     }
 
     public function testConfigError()
     {
-        $root = $this->getFilesystem();
-
         $this->expectException(InvalidArgumentException::class);
 
         ScriptHandler::copy($this->getEventMock([]));
         ScriptHandler::copy($this->getEventMock(['to', 'from', 'file3']));
         ScriptHandler::copy($this->getEventMock(null));
         ScriptHandler::copy($this->getEventMock('some string'));
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
-     */
-    private function getEventMock($copyFileConfig)
-    {
-        $event = $this->getMockBuilder('Composer\Script\Event')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $event
-            ->expects($this->once())
-            ->method('getComposer')
-            ->will($this->returnValue($this->getComposerMock($copyFileConfig)));
-
-        $event
-            ->method('getIO')
-            ->will($this->returnValue($this->createMock('\Composer\IO\IOInterface')));
-
-        return $event;
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
-     */
-    private function getComposerMock($copyFileConfig)
-    {
-        $package = $this->getPackageMock($copyFileConfig);
-
-        $composer = $this->getMockBuilder('Composer\Composer')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $composer
-            ->expects($this->once())
-            ->method('getPackage')
-            ->will($this->returnValue($package));
-
-        return $composer;
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
-     */
-    private function getPackageMock($copyFileConfig)
-    {
-        $extra = null;
-
-        if (!is_null($copyFileConfig)) {
-            $extra = [
-                'copy-file' => $copyFileConfig,
-            ];
-        }
-
-        $package = $this->getMockBuilder('Composer\Package\RootPackageInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $package
-            ->expects($this->once())
-            ->method('getExtra')
-            ->will($this->returnValue($extra));
-
-        return $package;
-    }
-
-    private function getFilesystem()
-    {
-        $structure = [
-            'from' => [
-                'file1' => 'Some content',
-                'file2' => 'Some content',
-            ],
-            'to' => [],
-            'file3' => 'Some content',
-            'from_complex' => [
-                'file4' => 'Some content',
-                'sub_dir' => [
-                    'file5' => 'Some content',
-                ],
-                'git_keep_dir' => [
-                    '.gitkeep' => '',
-                ],
-            ],
-        ];
-
-        return vfsStream::setup('root', null, $structure);
     }
 }
