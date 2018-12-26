@@ -6,7 +6,6 @@ root: false
 env:
   global:
     - setup=stable
-    - update=self
 
 cache:
   directories:
@@ -30,12 +29,11 @@ matrix:
     - php: 7.2
       env: setup=lowest
     - php: hhvm
-      env: update=nothing
     - php: hhvm
-      env: update=nothing setup=lowest
+      env: setup=lowest
 
 before_install:
-  - if [[ $update = 'self' ]]; then travis_retry composer self-update; fi
+  - travis_retry composer self-update
   - travis_retry composer config -g github-oauth.github.com "$GITHUB_TOKEN"
 
 install:

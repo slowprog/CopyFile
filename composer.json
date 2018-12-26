@@ -25,7 +25,7 @@
         "psr-4": { "SlowProg\\CopyFile\\": "" }
     },
     "autoload-dev": {
-        "psr-0": { "": "tests/" }
+        "classmap": [ "tests/" ]
     },
     "scripts": {
         "test": "phpunit --verbose"
