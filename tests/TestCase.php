@@ -2,7 +2,7 @@
 
 use \org\bovigo\vfs\vfsStream;
 
-class TestCase extends PHPUnit_Framework_TestCase
+abstract class TestCase extends PHPUnit_Framework_TestCase
 {
     /**
      * @var \org\bovigo\vfs\vfsStreamDirectory
