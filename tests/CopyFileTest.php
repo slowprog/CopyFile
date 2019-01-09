@@ -2,7 +2,6 @@
 
 use \SlowProg\CopyFile\ScriptHandler;
 use \org\bovigo\vfs\vfsStream;
-use \org\bovigo\vfs\visitor\vfsStreamStructureVisitor;
 
 class CopyFileTest extends TestCase
 {
