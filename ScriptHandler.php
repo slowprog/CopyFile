@@ -31,6 +31,12 @@ class ScriptHandler
         $io = $event->getIO();
 
         foreach ($files as $from => $to) {
+            // check pattern
+            $pattern = null;
+            if (strpos($from, '#') > 0) {
+                list($from, $pattern) = explode('#', $from, 2);
+            }
+
             // check the overwrite newer files disable flag (? in end of path)
             $overwriteNewerFiles = substr($to, -1) != '?';
             if (!$overwriteNewerFiles) {
@@ -61,6 +67,10 @@ class ScriptHandler
             if (is_dir($from)) {
                 $finder = new Finder;
                 $finder->files()->ignoreDotFiles(false)->in($from);
+
+                if ($pattern) {
+                    $finder->path("#{$pattern}#");
+                }
 
                 foreach ($finder as $file) {
                     $dest = sprintf('%s/%s', $to, $file->getRelativePathname());

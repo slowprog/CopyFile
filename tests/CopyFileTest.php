@@ -2,6 +2,7 @@
 
 use \SlowProg\CopyFile\ScriptHandler;
 use \org\bovigo\vfs\vfsStream;
+use \org\bovigo\vfs\visitor\vfsStreamStructureVisitor;
 
 class CopyFileTest extends TestCase
 {
@@ -125,6 +126,21 @@ class CopyFileTest extends TestCase
         $this->assertFileEquals(vfsStream::url('root/from/file2'), $unaltered);
     }
 
+    public function testCopyByPattern()
+    {
+        $this->assertFalse($this->root->hasChild('to/file4'));
+        $this->assertFalse($this->root->hasChild('to/sub_dir/file5'));
+        $this->assertFalse($this->root->hasChild('to/git_keep_dir'));
+
+        ScriptHandler::copy($this->getEventMock([
+            vfsStream::url('root/from_complex') . '#\w{4}\d' => vfsStream::url('root/to')
+        ]));
+
+        $this->assertTrue($this->root->hasChild('to/file4'));
+        $this->assertTrue($this->root->hasChild('to/sub_dir/file5'));
+        $this->assertFalse($this->root->hasChild('to/git_keep_dir'));
+    }
+
     public function testConfigError()
     {
         $this->expectException(InvalidArgumentException::class);
@@ -133,5 +149,25 @@ class CopyFileTest extends TestCase
         ScriptHandler::copy($this->getEventMock(['to', 'from', 'file3']));
         ScriptHandler::copy($this->getEventMock(null));
         ScriptHandler::copy($this->getEventMock('some string'));
+    }
+
+    protected function getLeafs($array, $glue = '/')
+    {
+        $leafs = array();
+        if (!is_array($array)) {
+            return $leafs;
+        }
+        $array_iterator = new RecursiveArrayIterator($array);
+        $iterator_iterator = new RecursiveIteratorIterator($array_iterator, RecursiveIteratorIterator::LEAVES_ONLY);
+        foreach ($iterator_iterator as $key => $value) {
+            $keys = array();
+            for ( $i = 0; $i < $iterator_iterator->getDepth(); $i++ ) {
+                $keys[] = $iterator_iterator->getSubIterator($i)->key();
+            }
+            $keys[] = $key;
+            $leaf_key = implode($glue, $keys);
+            $leafs[$leaf_key] = $value;
+        }
+        return $leafs;
     }
 }
