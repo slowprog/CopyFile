@@ -150,24 +150,4 @@ class CopyFileTest extends TestCase
         ScriptHandler::copy($this->getEventMock(null));
         ScriptHandler::copy($this->getEventMock('some string'));
     }
-
-    protected function getLeafs($array, $glue = '/')
-    {
-        $leafs = array();
-        if (!is_array($array)) {
-            return $leafs;
-        }
-        $array_iterator = new RecursiveArrayIterator($array);
-        $iterator_iterator = new RecursiveIteratorIterator($array_iterator, RecursiveIteratorIterator::LEAVES_ONLY);
-        foreach ($iterator_iterator as $key => $value) {
-            $keys = array();
-            for ( $i = 0; $i < $iterator_iterator->getDepth(); $i++ ) {
-                $keys[] = $iterator_iterator->getSubIterator($i)->key();
-            }
-            $keys[] = $key;
-            $leaf_key = implode($glue, $keys);
-            $leafs[$leaf_key] = $value;
-        }
-        return $leafs;
-    }
 }
