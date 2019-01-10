@@ -125,6 +125,21 @@ class CopyFileTest extends TestCase
         $this->assertFileEquals(vfsStream::url('root/from/file2'), $unaltered);
     }
 
+    public function testCopyByPattern()
+    {
+        $this->assertFalse($this->root->hasChild('to/file4'));
+        $this->assertFalse($this->root->hasChild('to/sub_dir/file5'));
+        $this->assertFalse($this->root->hasChild('to/git_keep_dir'));
+
+        ScriptHandler::copy($this->getEventMock([
+            vfsStream::url('root/from_complex') . '#\w{4}\d' => vfsStream::url('root/to')
+        ]));
+
+        $this->assertTrue($this->root->hasChild('to/file4'));
+        $this->assertTrue($this->root->hasChild('to/sub_dir/file5'));
+        $this->assertFalse($this->root->hasChild('to/git_keep_dir'));
+    }
+
     public function testConfigError()
     {
         $this->expectException(InvalidArgumentException::class);

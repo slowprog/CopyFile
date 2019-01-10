@@ -167,3 +167,23 @@ dir/
             file1.txt - Not changed
             file2.txt - Replaced
     ```
+    
+5. Filter source files by regexp pattern
+
+    ```
+    {
+        "extra": {
+            "copy-file": {
+                "dir/subdir#1\.\w{3}$": "web/other/"
+            }
+        }
+    }
+    ```
+
+    Result:
+
+    ```
+    web/
+        other/
+            file1.txt
+    ```
