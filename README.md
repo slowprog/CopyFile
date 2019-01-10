@@ -12,7 +12,7 @@ For example copy fonts:
 {
     "require":{
         "twbs/bootstrap": "~3.3",
-        "slowprog/composer-copy-file": "~0.2"
+        "slowprog/composer-copy-file": "~0.3"
     },
     "scripts": {
         "post-install-cmd": [
@@ -36,7 +36,7 @@ In a development you may use `-dev` suffix. For example copy non-minified in dev
 {
     "require":{
         "twbs/bootstrap": "~3.3",
-        "slowprog/composer-copy-file": "~0.2"
+        "slowprog/composer-copy-file": "~0.3"
     },
     "scripts": {
         "post-install-cmd": [
