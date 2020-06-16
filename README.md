@@ -99,7 +99,7 @@ dir/
     {
         "extra": {
             "copy-file": {
-                "dir/subdir/file1.txt": "web/other/"
+                "dir/subdir/file1.txt": "web/other/",
                 "dir/subdir/file2.txt": "web/other/file2.txt/"
             }
         }
@@ -122,7 +122,7 @@ dir/
     {
         "extra": {
             "copy-file": {
-                "dir/subdir/file1.txt": "web/other/file1.txt"
+                "dir/subdir/file1.txt": "web/other/file1.txt",
                 "dir/subdir/file2.txt": "web/other/file_rename.txt"
             }
         }
