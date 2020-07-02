@@ -142,11 +142,13 @@ class CopyFileTest extends TestCase
 
     public function testConfigError()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->assertEquals(5, count($this->root->getChildren()));
 
         ScriptHandler::copy($this->getEventMock([]));
         ScriptHandler::copy($this->getEventMock(['to', 'from', 'file3']));
         ScriptHandler::copy($this->getEventMock(null));
         ScriptHandler::copy($this->getEventMock('some string'));
+
+        $this->assertEquals(5, count($this->root->getChildren()));
     }
 }

@@ -20,13 +20,15 @@ class ScriptHandler
         $io = $event->getIO();
         if (!isset($extras[$extraField])) {
             $io->write("No dirs or files are configured through the extra.{$extraField} setting.");
+
             return;
         }
 
         $files = $extras[$extraField];
 
-        if ($files === array_values($files)) {
+        if (!is_array($files) || $files === array_values($files)) {
             $io->write("The extra.{$extraField} must be hash like \"\{<dir_or_file_from>: <dir_to>\}\".");
+
             return;
         }
 
